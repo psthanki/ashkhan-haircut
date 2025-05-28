@@ -29,7 +29,7 @@ export default function App() {
       console.log('Confirmation email sent to:', formData.email);
       
       setTimeout(() => {
-        window.open('https://calendly.com/pratiksthanki/30min', '_blank');
+        window.open('https://calendly.com/odedrajay99/30min', '_blank');
       }, 1500);
     }, 1000);
   };
