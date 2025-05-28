@@ -328,8 +328,14 @@ export default function App() {
                       <Calendar size={36} />
                       <h2>Select Date & Time</h2>
                       <p>Choose a convenient time for your appointment</p>
-                    </div>
-                    
+                    </div
+                    {/* ADD YOUR CALENDLY LINK HERE 👇 */}
+    <div 
+      className="calendly-inline-widget"
+      data-url="https://calendly.com/pratiksthanki/30min" // 👈 Replace this with your link
+        style={{ minWidth: '320px', height: '600px' }}
+    />
+  </div>
                     <div className="calendly-widget">
                       <div className="calendly-placeholder">
                         <div className="spinner"></div>
