@@ -83,7 +83,7 @@ export default function App() {
             Opening Calendly to book your appointment...
           </p>
           <button
-            onClick={() => window.open('https://calendly.com/ashkhan-haircut', '_blank')}
+            onClick={() => window.open('https://calendly.com/pratiksthanki/30min', '_blank')}
             style={{
               width: '100%',
               background: '#2563eb',
