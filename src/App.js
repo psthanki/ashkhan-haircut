@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Scissors, Mail, Phone, MapPin, Clock, Star, ChevronRight, Check, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Scissors, Mail, Phone, MapPin, Clock, Star, Check, User } from 'lucide-react';
 
 export default function App() {
   const [step, setStep] = useState(1); // 1: service, 2: details, 3: calendly, 4: confirmation
@@ -10,7 +10,6 @@ export default function App() {
     service: 'haircut'
   });
   const [isLoading, setIsLoading] = useState(false);
-  const calendlyRef = useRef(null);
 
   const services = [
     { id: 'haircut', name: 'Classic Haircut', price: '$25', duration: '30 min', icon: '✂️' },
@@ -37,14 +36,9 @@ export default function App() {
     }
   }, [step]);
 
-  // Handle form submission to Google Sheets
   const submitToGoogleSheets = () => {
-    // In a real app, you'd use:
-    // fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
-    //   method: 'POST',
-    //   body: JSON.stringify(formData)
-    // });
     console.log('Submitting to Google Sheets:', formData);
+    // In a real app: fetch('YOUR_GOOGLE_SCRIPT_URL', { method: 'POST', body: JSON.stringify(formData) });
   };
 
   const handleServiceSelect = (serviceId) => {
@@ -56,7 +50,6 @@ export default function App() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setStep(3);
@@ -73,33 +66,12 @@ export default function App() {
 
   const handleBookingComplete = () => {
     setIsLoading(true);
-    // Simulate sending confirmation email
     setTimeout(() => {
       setIsLoading(false);
       setStep(4);
       console.log('Confirmation email sent to:', formData.email);
     }, 1000);
   };
-
-  // Step indicators component
-  const StepIndicator = () => (
-    <div className="step-indicators">
-      {[1, 2, 3, 4].map(num => (
-        <div 
-          key={num} 
-          className={`step ${step === num ? 'active' : ''} ${step > num ? 'completed' : ''}`}
-        >
-          {step > num ? <Check size={14} /> : num}
-        </div>
-      ))}
-      <div className="step-labels">
-        <span>Service</span>
-        <span>Details</span>
-        <span>Schedule</span>
-        <span>Confirm</span>
-      </div>
-    </div>
-  );
 
   if (step === 4) {
     return (
@@ -156,8 +128,6 @@ export default function App() {
       </header>
 
       <div className="main-content">
-        <StepIndicator />
-        
         <div className="content-grid">
           {/* Left Side - Info */}
           <div className="info-section">
@@ -231,128 +201,157 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Side - Booking Flow */}
+          {/* Right Side - Booking Flow with Vertical Steps */}
           <div className="booking-section">
-            {step === 1 && (
-              <div className="service-selection">
-                <div className="booking-header">
-                  <Calendar size={36} />
-                  <h2>Select a Service</h2>
+            <div className="booking-flow">
+              {/* Vertical Step Indicator */}
+              <div className="vertical-steps">
+                <div className={`step ${step >= 1 ? 'active' : ''}`}>
+                  <div className="step-number">{step > 1 ? <Check size={16} /> : 1}</div>
+                  <div className="step-content">
+                    <h4>Select Service</h4>
+                    <p>Choose your desired service</p>
+                  </div>
                 </div>
                 
-                <div className="service-options">
-                  {services.map(service => (
-                    <div 
-                      key={service.id}
-                      className={`service-option ${formData.service === service.id ? 'selected' : ''}`}
-                      onClick={() => handleServiceSelect(service.id)}
-                    >
-                      <div className="option-icon">{service.icon}</div>
-                      <div className="option-details">
-                        <h3>{service.name}</h3>
-                        <p>{service.price} • {service.duration}</p>
-                      </div>
-                      <ChevronRight size={20} />
+                <div className="step-connector"></div>
+                
+                <div className={`step ${step >= 2 ? 'active' : ''}`}>
+                  <div className="step-number">{step > 2 ? <Check size={16} /> : 2}</div>
+                  <div className="step-content">
+                    <h4>Your Details</h4>
+                    <p>Provide contact information</p>
+                  </div>
+                </div>
+                
+                <div className="step-connector"></div>
+                
+                <div className={`step ${step >= 3 ? 'active' : ''}`}>
+                  <div className="step-number">3</div>
+                  <div className="step-content">
+                    <h4>Schedule</h4>
+                    <p>Pick date & time</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Step Content */}
+              <div className="step-content-area">
+                {step === 1 && (
+                  <div className="service-selection">
+                    <div className="booking-header">
+                      <Calendar size={36} />
+                      <h2>Select a Service</h2>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {step === 2 && (
-              <div className="details-form">
-                <div className="booking-header">
-                  <User size={36} />
-                  <h2>Your Information</h2>
-                  <p>We'll use this to confirm your appointment</p>
-                </div>
-                
-                <form onSubmit={handleDetailsSubmit}>
-                  <div className="form-group">
-                    <label>Full Name *</label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your full name"
-                    />
+                    
+                    <div className="service-options">
+                      {services.map(service => (
+                        <div 
+                          key={service.id}
+                          className={`service-option ${formData.service === service.id ? 'selected' : ''}`}
+                          onClick={() => handleServiceSelect(service.id)}
+                        >
+                          <div className="option-icon">{service.icon}</div>
+                          <div className="option-details">
+                            <h3>{service.name}</h3>
+                            <p>{service.price} • {service.duration}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                )}
+                
+                {step === 2 && (
+                  <div className="details-form">
+                    <div className="booking-header">
+                      <User size={36} />
+                      <h2>Your Information</h2>
+                      <p>We'll use this to confirm your appointment</p>
+                    </div>
+                    
+                    <form onSubmit={handleDetailsSubmit}>
+                      <div className="form-group">
+                        <label>Full Name *</label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Enter your full name"
+                        />
+                      </div>
 
-                  <div className="form-group">
-                    <label>Email Address *</label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
+                      <div className="form-group">
+                        <label>Email Address *</label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
 
-                  <div className="form-group">
-                    <label>Phone Number *</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="(555) 123-4567"
-                    />
+                      <div className="form-group">
+                        <label>Phone Number *</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          required
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+                      
+                      <button 
+                        type="submit" 
+                        className="primary-btn"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="spinner"></div>
+                        ) : (
+                          'Continue to Scheduling'
+                        )}
+                      </button>
+                    </form>
                   </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="primary-btn"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="spinner"></div>
-                    ) : (
-                      <>
-                        Continue to Scheduling 
-                        <ChevronRight size={18} />
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-            )}
-            
-            {step === 3 && (
-              <div className="calendly-container">
-                <div className="booking-header">
-                  <Calendar size={36} />
-                  <h2>Select Date & Time</h2>
-                  <p>Choose a convenient time for your appointment</p>
-                </div>
+                )}
                 
-                <div 
-                  className="calendly-widget" 
-                  ref={calendlyRef}
-                >
-                  <div className="calendly-placeholder">
-                    <div className="spinner"></div>
-                    <p>Loading scheduling options...</p>
+                {step === 3 && (
+                  <div className="calendly-container">
+                    <div className="booking-header">
+                      <Calendar size={36} />
+                      <h2>Select Date & Time</h2>
+                      <p>Choose a convenient time for your appointment</p>
+                    </div>
+                    
+                    <div className="calendly-widget">
+                      <div className="calendly-placeholder">
+                        <div className="spinner"></div>
+                        <p>Loading scheduling options...</p>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      className="primary-btn"
+                      onClick={handleBookingComplete}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="spinner"></div>
+                      ) : (
+                        'Confirm Booking'
+                      )}
+                    </button>
                   </div>
-                </div>
-                
-                <button 
-                  className="primary-btn"
-                  onClick={handleBookingComplete}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="spinner"></div>
-                  ) : (
-                    'Confirm Booking'
-                  )}
-                </button>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -451,77 +450,6 @@ export default function App() {
           width: 100%;
           margin: 0 auto;
           padding: 40px 20px;
-        }
-        
-        /* Step Indicators */
-        .step-indicators {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-bottom: 40px;
-          position: relative;
-        }
-        
-        .step-indicators::before {
-          content: '';
-          position: absolute;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 70%;
-          height: 2px;
-          background: var(--glass);
-          z-index: 0;
-        }
-        
-        .step-indicators > div:first-child {
-          display: flex;
-          justify-content: center;
-          gap: 40px;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .step {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: var(--glass);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          color: var(--gray);
-          border: 2px solid transparent;
-          transition: all 0.3s ease;
-        }
-        
-        .step.active {
-          background: var(--primary);
-          color: white;
-          border-color: rgba(255, 255, 255, 0.3);
-          transform: scale(1.1);
-          box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
-        }
-        
-        .step.completed {
-          background: var(--success);
-          color: white;
-        }
-        
-        .step-labels {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-          max-width: 600px;
-          margin-top: 12px;
-          font-size: 0.8rem;
-          color: var(--gray);
-        }
-        
-        .step-labels span {
-          width: 80px;
-          text-align: center;
         }
         
         /* Content Grid */
@@ -710,10 +638,89 @@ export default function App() {
           border-color: rgba(139, 92, 246, 0.3);
         }
         
+        .booking-flow {
+          display: flex;
+          min-height: 600px;
+        }
+        
+        /* Vertical Steps */
+        .vertical-steps {
+          width: 220px;
+          background: rgba(15, 23, 42, 0.4);
+          border-right: 1px solid var(--glass-border);
+          padding: 30px 20px;
+        }
+        
+        .step {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 30px;
+          position: relative;
+        }
+        
+        .step.active {
+          color: white;
+        }
+        
+        .step:not(.active) {
+          color: var(--gray);
+        }
+        
+        .step-number {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          flex-shrink: 0;
+          z-index: 2;
+        }
+        
+        .step.active .step-number {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .step-content h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+        
+        .step-content p {
+          font-size: 0.85rem;
+          opacity: 0.8;
+        }
+        
+        .step-connector {
+          position: absolute;
+          top: 32px;
+          left: 16px;
+          height: calc(100% + 10px);
+          width: 2px;
+          background: rgba(255, 255, 255, 0.1);
+          z-index: 1;
+        }
+        
+        .step.active + .step-connector {
+          background: var(--primary);
+        }
+        
+        /* Step Content Area */
+        .step-content-area {
+          flex: 1;
+          padding: 30px;
+          overflow-y: auto;
+          max-height: 600px;
+        }
+        
         .booking-header {
-          padding: 32px 32px 24px;
           text-align: center;
-          border-bottom: 1px solid var(--glass-border);
+          margin-bottom: 30px;
         }
         
         .booking-header svg {
@@ -734,7 +741,7 @@ export default function App() {
         
         /* Service Selection */
         .service-options {
-          padding: 20px;
+          padding: 10px 0;
         }
         
         .service-option {
@@ -779,13 +786,9 @@ export default function App() {
           color: var(--gray);
         }
         
-        .service-option svg {
-          color: var(--gray);
-        }
-        
         /* Form Styles */
         .details-form {
-          padding: 0 32px 32px;
+          padding: 10px 0;
         }
         
         .form-group {
@@ -853,11 +856,11 @@ export default function App() {
         
         /* Calendly Container */
         .calendly-container {
-          padding: 0 32px 32px;
+          padding: 10px 0;
         }
         
         .calendly-widget {
-          height: 600px;
+          height: 400px;
           border-radius: 16px;
           overflow: hidden;
           margin-bottom: 24px;
@@ -997,24 +1000,35 @@ export default function App() {
             grid-template-columns: 1fr;
           }
           
-          .step-indicators::before {
-            width: 85%;
+          .booking-flow {
+            flex-direction: column;
+          }
+          
+          .vertical-steps {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            border-right: none;
+            border-bottom: 1px solid var(--glass-border);
+          }
+          
+          .step {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 0;
+          }
+          
+          .step-connector {
+            display: none;
           }
         }
         
         @media (max-width: 480px) {
-          .step-indicators::before {
-            width: 95%;
-          }
-          
-          .step {
-            width: 30px;
-            height: 30px;
-            font-size: 0.9rem;
-          }
-          
-          .booking-header {
-            padding: 24px 20px 16px;
+          .booking-header h2 {
+            font-size: 1.4rem;
           }
         }
       `}</style>
